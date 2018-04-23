@@ -78,6 +78,7 @@ int main(int argc, char **argv)
 
     for(; linha > 0; linha--)
         free(matriz[linha -1]);
+    free(raiz);
     return 0;
 }
 
