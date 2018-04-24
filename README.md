@@ -126,9 +126,33 @@ __Descrição__: tecnica de solução de sistemas lineares atraves de regresão
 
 para compilar os exemplos a seguir use:
 
->  gcc -Wall -L. -Wl,-rpath=.\bin -llinalg -o main main.c -I./include
+>  gcc -L. -Wl,-rpath=. -o main main.c -llinalg -I./include
 
 ``` c
+/*
+ * main.c
+ *
+ * Copyright 2018 Bruno da Silva Machado <brunosilvamachado@id.uff.br>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ *
+ *
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <linalg.h>
@@ -149,45 +173,169 @@ void imprimeRaiz(double *r, int dim)
 
 int main(int argc, char **argv)
 {
-    double **matriz;
+    double **matriz,**matriz2,**inv;
     double *raiz;
-    int linha,coluna;
+    int linha,coluna,linha2,coluna2;
 
+    if (argc < 2){
+        puts("Entre com duas matizes:Ex: ./main matriz.dat matriz2.dat\n"); 
+        return 1;
+    }
+
+
+    puts("\n~~~~~~~~~~~~~~~ Solução do sistema da matriz 1 ~~~~~~~~~~~~~\n");
+    
     matriz = lerMatriz(argv[1],&linha,&coluna);
     imprimeMatriz(matriz,linha,coluna);
 
-    puts("Solução do sistema\n");
-
-    puts("Pelo metodo de Jacobi\n");
+    puts("\n******************** Pelo metodo de Jacobi *****************\n");
     raiz = metodoJacobi(matriz,linha,0);
     imprimeRaiz(raiz,coluna);
 
-    puts("Pelo metodo de Gauss\n");
+    puts("\n******************** Pelo metodo de Gauss ******************\n");
     raiz = metodoGauss(matriz,linha,coluna);
     imprimeRaiz(raiz,coluna);
+    
+    printf("Norma das raizes: %lf\n",normalize(raiz,coluna));
 
-    printf("Determinante: %lf\nNorma das raizes: %lf\n ",determinante(matriz,linha),normalize(raiz,coluna));
-
-    puts("\nmatriz inversa\n");
-    matriz = matrizInversa(matriz,linha,coluna);
+    puts("\n******************** Triangularizando a matriz ******************\n");
+    triangularSuperior(matriz,linha,coluna);
     imprimeMatriz(matriz,linha,coluna);
-    printf("Determinante: %lf\n",determinante(matriz,linha));
-    puts("\n");
 
+    puts("\n~~~~~~~~~~~~~~~ Operações com matriz 2 ~~~~~~~~~~~~~\n");
+    
+    matriz2 = lerMatriz(argv[2],&linha2,&coluna2);
+    imprimeMatriz(matriz2,linha2,coluna2);
+    
+    printf("Determinante: %lf\n ",determinante(matriz2,linha2));
+
+    puts("\n******************** matriz inversa ********************\n");
+    inv = matrizInversa(matriz2,linha2,coluna2);
+    imprimeMatriz(inv,linha2,coluna2);
+    printf("Determinante: %lf\n",determinante(inv,linha2));
+    puts("\n");
+    
+    puts("\nProduto da matriz inversa com a matriz de entrada\n");
+    imprimeMatriz(multiplicaMatriz(matriz2,inv,linha2,coluna2,coluna2),linha2,coluna2);
+
+    puts("\n~~~~~~~~~~~~~~~ Outras Matrizes ~~~~~~~~~~~~~\n");
+    
     puts("\nmatriz identidade\n");
-    imprimeMatriz(matrizIdentidade(linha,coluna),linha,coluna);
+    imprimeMatriz(matrizIdentidade(linha2,coluna2),linha2,coluna2);
     puts("\n");
 
     puts("\nmatriz nula\n");
 
-    imprimeMatriz(matrizNula(linha,coluna),linha,coluna);
+    imprimeMatriz(matrizNula(linha2,coluna2),linha2,coluna2);
     puts("\n");
+    
 
     for(; linha > 0; linha--)
         free(matriz[linha -1]);
-    free(raiz);
+    for(; linha2 > 0; linha2--){
+        free(matriz2[linha2 -1]);
+        free(inv[linha2 -1]);
+    }
     return 0;
 }
+
+```
+
+# Resultado
+
+```
+
+~~~~~~~~~~~~~~~ Solução do sistema da matriz 1 ~~~~~~~~~~~~~
+
+10.000	-1.000	 2.000	 0.000	 6.000	
+-1.000	11.000	-1.000	 3.000	25.000	
+ 2.000	-1.000	10.000	-1.000	-11.000	
+ 0.000	 3.000	-1.000	 8.000	15.000	
+________
+
+******************** Pelo metodo de Jacobi *****************
+
+
+__roots__
+
+x[1] = 1.00000
+x[2] = 2.00000
+x[3] = -1.00000
+x[4] = 1.00000
+x[5] = 0.00000
+________
+
+******************** Pelo metodo de Gauss ******************
+
+
+__roots__
+
+x[1] = 1.00000
+x[2] = 2.00000
+x[3] = -1.00000
+x[4] = 1.00000
+x[5] = 0.00000
+________
+Norma das raizes: 2.645751
+
+******************** Triangularizando a matriz ******************
+
+10.000	-1.000	 2.000	 0.000	 6.000	
+ 0.000	10.900	-0.800	 3.000	25.600	
+ 0.000	 0.000	 9.541	-0.780	-10.321	
+ 0.000	-0.000	 0.000	 7.111	 7.111	
+________
+
+~~~~~~~~~~~~~~~ Operações com matriz 2 ~~~~~~~~~~~~~
+
+ 2.000	 1.000	-1.000	 1.000	
+ 1.000	 1.000	 0.000	 3.000	
+-1.000	 2.000	 3.000	-1.000	
+ 3.000	-1.000	-1.000	 2.000	
+________
+Determinante: 39.000000
+ 
+******************** matriz inversa ********************
+
+ 0.333	 0.200	 0.133	-0.231	
+ 0.000	 0.600	 0.067	 0.077	
+ 0.000	 0.000	 0.333	 0.000	
+ 0.000	-0.000	-0.000	 0.385	
+________
+Determinante: 0.025641
+
+
+
+Produto da matriz inversa com a matriz de entrada
+
+ 1.000	 0.000	 0.000	 0.000	
+ 0.000	 1.000	 0.000	 0.000	
+ 0.000	-0.000	 1.000	-0.000	
+ 0.000	 0.000	 0.000	 1.000	
+________
+
+~~~~~~~~~~~~~~~ Outras Matrizes ~~~~~~~~~~~~~
+
+
+matriz identidade
+
+ 1.000	 0.000	 0.000	 0.000	
+ 0.000	 1.000	 0.000	 0.000	
+ 0.000	 0.000	 1.000	 0.000	
+ 0.000	 0.000	 0.000	 1.000	
+________
+
+
+
+matriz nula
+
+ 0.000	 0.000	 0.000	 0.000	
+ 0.000	 0.000	 0.000	 0.000	
+ 0.000	 0.000	 0.000	 0.000	
+ 0.000	 0.000	 0.000	 0.000	
+________
+
+
 
 ```
 
