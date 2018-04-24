@@ -40,11 +40,11 @@ double **matrizInversa(double **m, int linha, int coluna)
     }
     //2° escalona a matriz para forma triangular superior
     triangularSuperior(maux,linha,2*coluna);
-    if(determinante(m,linha) == 0)
+    /*if(determinante(m,linha) == 0)
     {
         puts("A matriz informada não possue inversa. Erro: SINGULAR_MATRIX\n");
         return m;
-    }
+    }*/
 
     //3° copia a matriz aumentada para matriz compressão
     for(i = 0; i < linha; i++)
