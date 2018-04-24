@@ -42,43 +42,69 @@ void imprimeRaiz(double *r, int dim)
 
 int main(int argc, char **argv)
 {
-    double **matriz;
+    double **matriz,**matriz2,**inv;
     double *raiz;
-    int linha,coluna;
+    int linha,coluna,linha2,coluna2;
 
+    if (argc < 2){
+        puts("Entre com duas matizes:Ex: ./main matriz.dat matriz2.dat\n"); 
+        return 1;
+    }
+
+
+    puts("\n~~~~~~~~~~~~~~~ Solução do sistema da matriz 1 ~~~~~~~~~~~~~\n");
+    
     matriz = lerMatriz(argv[1],&linha,&coluna);
     imprimeMatriz(matriz,linha,coluna);
 
-    puts("Solução do sistema\n");
-
-    puts("Pelo metodo de Jacobi\n");
+    puts("\n******************** Pelo metodo de Jacobi *****************\n");
     raiz = metodoJacobi(matriz,linha,0);
     imprimeRaiz(raiz,coluna);
 
-    puts("Pelo metodo de Gauss\n");
+    puts("\n******************** Pelo metodo de Gauss ******************\n");
     raiz = metodoGauss(matriz,linha,coluna);
     imprimeRaiz(raiz,coluna);
+    
+    printf("Norma das raizes: %lf\n",normalize(raiz,coluna));
 
-    printf("Determinante: %lf\nNorma das raizes: %lf\n ",determinante(matriz,linha),normalize(raiz,coluna));
-
-    puts("\nmatriz inversa\n");
-    matriz = matrizInversa(matriz,linha,coluna);
+    puts("\n******************** Triangularizando a matriz ******************\n");
+    triangularSuperior(matriz,linha,coluna);
     imprimeMatriz(matriz,linha,coluna);
-    printf("Determinante: %lf\n",determinante(matriz,linha));
-    puts("\n");
 
+    puts("\n~~~~~~~~~~~~~~~ Operações com matriz 2 ~~~~~~~~~~~~~\n");
+    
+    matriz2 = lerMatriz(argv[2],&linha2,&coluna2);
+    imprimeMatriz(matriz2,linha2,coluna2);
+    
+    printf("Determinante: %lf\n ",determinante(matriz2,linha2));
+
+    puts("\n******************** matriz inversa ********************\n");
+    inv = matrizInversa(matriz2,linha2,coluna2);
+    imprimeMatriz(inv,linha2,coluna2);
+    printf("Determinante: %lf\n",determinante(inv,linha2));
+    puts("\n");
+    
+    puts("\nProduto da matriz inversa com a matriz de entrada\n");
+    imprimeMatriz(multiplicaMatriz(matriz2,inv,linha2,coluna2,coluna2),linha2,coluna2);
+
+    puts("\n~~~~~~~~~~~~~~~ Outras Matrizes ~~~~~~~~~~~~~\n");
+    
     puts("\nmatriz identidade\n");
-    imprimeMatriz(matrizIdentidade(linha,coluna),linha,coluna);
+    imprimeMatriz(matrizIdentidade(linha2,coluna2),linha2,coluna2);
     puts("\n");
 
     puts("\nmatriz nula\n");
 
-    imprimeMatriz(matrizNula(linha,coluna),linha,coluna);
+    imprimeMatriz(matrizNula(linha2,coluna2),linha2,coluna2);
     puts("\n");
+    
 
     for(; linha > 0; linha--)
         free(matriz[linha -1]);
-    free(raiz);
+    for(; linha2 > 0; linha2--){
+        free(matriz2[linha2 -1]);
+        free(inv[linha2 -1]);
+    }
     return 0;
 }
 
