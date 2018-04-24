@@ -44,7 +44,7 @@ extern double *metodoJacobi(double **, int, double );
 
 extern double *metodoGauss(double **, int, int  );
 
-extern double **multiplicaMatriz(double **, double **,int, int );
+extern double **multiplicaMatriz(double **, double **,int, int, int );
 
 extern double **somaMatriz(double **, double **,int, int );
 
