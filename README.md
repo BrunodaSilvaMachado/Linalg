@@ -1,6 +1,6 @@
 # Linalg
 
-Linalg é uma simples biblioteca de algera linear com o objetivo de fornecer os principais metodos de manipulação de matrizes e sistemas lineares
+Linalg é uma simples biblioteca de algebra linear com o objetivo de fornecer os principais metodos de manipulação de matrizes e sistemas lineares
 
 # Funções disponiveis
 
